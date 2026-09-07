@@ -1,4 +1,5 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { ResultadoComparacion } from './comparador';
 
 export type MainTabParamList = {
   CapturarTrayecto: undefined;
@@ -10,7 +11,7 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   Onboarding: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
-  Resultado: undefined;
+  Resultado: { resultado: ResultadoComparacion };
   PerfilAuto: undefined;
   DireccionesFavoritas: undefined;
   Suscripcion: undefined;
