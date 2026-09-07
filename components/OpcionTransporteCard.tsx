@@ -30,7 +30,10 @@ export default function OpcionTransporteCard({ opcion }: OpcionTransporteCardPro
       <Ionicons name={meta.icono} size={24} color={opcion.esRecomendada ? colors.secondary : colors.primary} />
       <View style={styles.info}>
         <View style={styles.encabezado}>
-          <Text style={styles.nombre}>{meta.nombre}</Text>
+          <Text style={styles.nombre}>
+            {meta.nombre}
+            {opcion.esEstimado ? <Text style={styles.estimado}> (estimado)</Text> : null}
+          </Text>
           {opcion.esRecomendada ? <Text style={styles.badge}>Más barata</Text> : null}
         </View>
         <Text style={styles.costoTotal}>{formatCurrencyMXN(opcion.costoTotal)}</Text>
@@ -75,6 +78,11 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.fontSize.md,
     fontWeight: typography.fontWeight.semibold as any,
+  },
+  estimado: {
+    color: colors.textMuted,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.regular as any,
   },
   nombreNoDisponible: {
     color: colors.textMuted,

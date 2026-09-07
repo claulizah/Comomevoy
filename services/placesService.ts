@@ -9,6 +9,10 @@ import type { PlaceDetails, PlaceSuggestion } from '../types/maps';
  * Places Autocomplete y Place Details con la key guardada en el servidor.
  * Mientras ese backend no exista, `MockPlacesService` simula el
  * autocompletado con un catálogo local, sin hacer ninguna llamada de red.
+ *
+ * Nota (sección 2): la app no usa el GPS del dispositivo, solo direcciones
+ * que la usuaria escribe/selecciona — por eso no hay expo-location aquí
+ * ni en ningún otro servicio del motor de comparación.
  */
 export interface PlacesService {
   autocomplete(query: string): Promise<PlaceSuggestion[]>;

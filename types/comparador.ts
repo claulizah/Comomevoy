@@ -38,6 +38,8 @@ export interface OpcionTransporte {
   nombre: string;
   disponible: boolean;
   motivoNoDisponible?: string;
+  /** true si el costo/tiempo es una estimación por fórmula, sin API en vivo (ver sección 2, Casos límite). */
+  esEstimado: boolean;
   costoTotal: number;
   costoPorPersona: number;
   tiempoEstimadoMin: number;
