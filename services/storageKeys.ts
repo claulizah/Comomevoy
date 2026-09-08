@@ -6,4 +6,5 @@ export const STORAGE_KEYS = {
   comparisonHistory: '@comomevoy/comparisonHistory',
   frequentRoutes: '@comomevoy/frequentRoutes',
   monthlyBudget: '@comomevoy/monthlyBudget',
+  account: '@comomevoy/account',
 } as const;

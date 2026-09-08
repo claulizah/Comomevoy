@@ -1,5 +1,6 @@
 import type { MonthlyBudget } from '../types/models';
-import { createEntityStorage } from './storage';
+import { createSyncableEntityStorage } from './storage';
 import { STORAGE_KEYS } from './storageKeys';
 
-export const monthlyBudgetStorage = createEntityStorage<MonthlyBudget>(STORAGE_KEYS.monthlyBudget);
+/** Se respalda con cuenta (sección 7) — ver types/sync.ts. */
+export const monthlyBudgetStorage = createSyncableEntityStorage<MonthlyBudget>(STORAGE_KEYS.monthlyBudget, 'monthly_budgets');

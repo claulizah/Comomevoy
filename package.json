@@ -29,9 +29,11 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
     "test:motor": "tsx scripts/test-motor-comparacion.ts",
     "test:ruta-frecuente": "tsx scripts/test-ruta-frecuente.ts",
-    "test:presupuesto": "tsx scripts/test-presupuesto.ts"
+    "test:presupuesto": "tsx scripts/test-presupuesto.ts",
+    "test:sync-registry": "tsx scripts/test-sync-registry.ts"
   },
   "private": true
 }

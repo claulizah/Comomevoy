@@ -1,5 +1,6 @@
 import type { VehicleProfile } from '../types/models';
-import { createEntityStorage } from './storage';
+import { createSyncableEntityStorage } from './storage';
 import { STORAGE_KEYS } from './storageKeys';
 
-export const vehicleProfileStorage = createEntityStorage<VehicleProfile>(STORAGE_KEYS.vehicleProfile);
+/** Se respalda con cuenta (sección 7) — ver types/sync.ts. */
+export const vehicleProfileStorage = createSyncableEntityStorage<VehicleProfile>(STORAGE_KEYS.vehicleProfile, 'vehicle_profiles');

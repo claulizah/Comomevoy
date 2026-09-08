@@ -1,4 +1,5 @@
-import type { EntityStorage } from './storage';
+import type { EntityStorage, SyncableEntityStorage } from './storage';
+import type { SyncableTable } from '../types/sync';
 
 /**
  * CRUD sobre una lista persistida como un solo EntityStorage<T[]> (mismo
@@ -34,4 +35,21 @@ export function createListStorage<T extends { id: string }>(entityStorage: Entit
       await entityStorage.save(items.filter((it) => it.id !== id));
     },
   };
+}
+
+/**
+ * Un ListStorage "marcado" como sincronizable — mismo mecanismo que
+ * SyncableEntityStorage (ver services/storage.ts): solo se obtiene
+ * llamando a createSyncableListStorage, así el motor de sync puede exigir
+ * este tipo y el compilador rechaza un ListStorage normal (p. ej.
+ * favoriteAddressStorage, que debe quedarse siempre local).
+ */
+export interface SyncableListStorage<T extends { id: string }> extends ListStorage<T> {
+  readonly syncTable: SyncableTable;
+}
+
+export function createSyncableListStorage<T extends { id: string }>(
+  entityStorage: SyncableEntityStorage<T[]>
+): SyncableListStorage<T> {
+  return { ...createListStorage<T>(entityStorage), syncTable: entityStorage.syncTable };
 }
