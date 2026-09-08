@@ -48,11 +48,19 @@ export interface ComparisonHistory {
   opcionGanadora: string;
 }
 
-/** Se respalda con cuenta. */
+/**
+ * Se respalda con cuenta.
+ *
+ * `origen`/`destino` son opcionales porque una ruta frecuente también
+ * puede venir de captura manual (solo km) — en ese caso se guarda
+ * `distanciaKm` y no hay direcciones. Ver services/frequentRouteService.ts
+ * para el criterio de "misma ruta" usado para detectar repeticiones.
+ */
 export interface FrequentRoute {
   id: string;
-  origen: string;
-  destino: string;
+  origen?: string;
+  destino?: string;
+  distanciaKm: number;
   opcionGanadora: string;
   vecesUsada: number;
 }

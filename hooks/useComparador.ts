@@ -3,7 +3,15 @@ import { directionsService } from '../services/directionsService';
 import { placesService } from '../services/placesService';
 import { ratesService } from '../services/ratesService';
 import { compararTrayecto } from '../services/comparadorService';
+import { registrarComparacion } from '../services/historyService';
+import { evaluarRutaFrecuente, formatearRutaDescripcion, type SugerenciaRutaFrecuente } from '../services/frequentRouteService';
+import { notificarPatronRepetido } from '../services/notificationsService';
 import type { Address, ModoCaptura, ResultadoComparacion } from '../types/comparador';
+
+export interface ResultadoConSugerencia {
+  resultado: ResultadoComparacion;
+  sugerenciaRutaFrecuente?: SugerenciaRutaFrecuente;
+}
 
 interface UseComparadorState {
   modoCaptura: ModoCaptura;
@@ -54,7 +62,7 @@ export function useComparador() {
     setEstado((prev) => ({ ...prev, numPasajeros: Math.max(1, numPasajeros) }));
   }, []);
 
-  const calcular = useCallback(async (): Promise<ResultadoComparacion | null> => {
+  const calcular = useCallback(async (): Promise<ResultadoConSugerencia | null> => {
     setEstado((prev) => ({ ...prev, calculando: true, error: null }));
 
     try {
@@ -71,13 +79,13 @@ export function useComparador() {
           setEstado((prev) => ({ ...prev, calculando: false, error: 'Selecciona un origen y un destino.' }));
           return null;
         }
-        if (estado.origen.lat === undefined || estado.destino.lat === undefined) {
+        if (!estado.origen.placeId || !estado.destino.placeId) {
           setEstado((prev) => ({ ...prev, calculando: false, error: 'No se pudo ubicar el origen o destino.' }));
           return null;
         }
 
-        const origenDetalle = await placesService.getPlaceDetails(estado.origen.placeId ?? '');
-        const destinoDetalle = await placesService.getPlaceDetails(estado.destino.placeId ?? '');
+        const origenDetalle = await placesService.getPlaceDetails(estado.origen.placeId);
+        const destinoDetalle = await placesService.getPlaceDetails(estado.destino.placeId);
         const ruta = await directionsService.calcularRuta(origenDetalle, destinoDetalle);
         distanciaKm = ruta.distanciaKm;
       }
@@ -95,8 +103,28 @@ export function useComparador() {
         rates
       );
 
+      const entradaHistorial = await registrarComparacion(resultado);
+      const rutaComparable = {
+        origen: entradaHistorial.origen,
+        destino: entradaHistorial.destino,
+        distanciaKm: entradaHistorial.distanciaKm,
+      };
+      const evaluacion = await evaluarRutaFrecuente(rutaComparable);
+
+      let sugerenciaRutaFrecuente: SugerenciaRutaFrecuente | undefined;
+      if (evaluacion.debeSugerirGuardar) {
+        sugerenciaRutaFrecuente = {
+          ...rutaComparable,
+          repeticiones: evaluacion.repeticiones,
+          opcionGanadora: resultado.opcionRecomendada?.modo ?? '',
+        };
+      }
+      if (evaluacion.debeNotificar) {
+        notificarPatronRepetido(evaluacion.repeticiones, formatearRutaDescripcion(rutaComparable)).catch(() => {});
+      }
+
       setEstado((prev) => ({ ...prev, calculando: false }));
-      return resultado;
+      return { resultado, sugerenciaRutaFrecuente };
     } catch (e) {
       setEstado((prev) => ({ ...prev, calculando: false, error: 'Ocurrió un error al calcular el trayecto.' }));
       return null;

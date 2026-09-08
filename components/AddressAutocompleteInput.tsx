@@ -18,7 +18,22 @@ export default function AddressAutocompleteInput({ label, placeholder, value, on
   const [sugerencias, setSugerencias] = useState<PlaceSuggestion[]>([]);
   const [buscando, setBuscando] = useState(false);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [placeIdSincronizado, setPlaceIdSincronizado] = useState(value?.placeId);
   const textoDebounced = useDebouncedValue(texto, 250);
+
+  // Si `value` cambia desde afuera (p. ej. un acceso rápido de dirección
+  // favorita en CapturarTrayecto) con una dirección distinta a la que ya
+  // se refleja en el texto, sincroniza el texto visible. No se sincroniza
+  // cuando value se vuelve null porque el propio usuario está escribiendo
+  // (ver handleChangeText) — eso no debe pisar lo que está tecleando.
+  useEffect(() => {
+    if (value && value.placeId !== placeIdSincronizado) {
+      setTexto(value.descripcion);
+      setPlaceIdSincronizado(value.placeId);
+      setMostrarSugerencias(false);
+      setSugerencias([]);
+    }
+  }, [value, placeIdSincronizado]);
 
   useEffect(() => {
     let cancelado = false;
@@ -45,13 +60,17 @@ export default function AddressAutocompleteInput({ label, placeholder, value, on
   function handleChangeText(nuevoTexto: string) {
     setTexto(nuevoTexto);
     setMostrarSugerencias(true);
-    if (value) onChange(null);
+    if (value) {
+      setPlaceIdSincronizado(undefined);
+      onChange(null);
+    }
   }
 
   function handleSeleccionar(sugerencia: PlaceSuggestion) {
     setTexto(sugerencia.descripcionPrincipal);
     setMostrarSugerencias(false);
     setSugerencias([]);
+    setPlaceIdSincronizado(sugerencia.placeId);
     onChange({
       descripcion: sugerencia.descripcionPrincipal,
       descripcionSecundaria: sugerencia.descripcionSecundaria,

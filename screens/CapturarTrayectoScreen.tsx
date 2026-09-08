@@ -18,16 +18,30 @@ import SegmentedControl from '../components/SegmentedControl';
 import Stepper from '../components/Stepper';
 import { colors, radii, spacing, typography } from '../constants/theme';
 import { useComparador } from '../hooks/useComparador';
+import { useFavoriteAddresses } from '../hooks/useFavoriteAddresses';
 import type { RootStackParamList } from '../types/navigation';
+import type { FavoriteAddress } from '../types/models';
 
 export default function CapturarTrayectoScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const comparador = useComparador();
+  const { favoriteAddresses } = useFavoriteAddresses();
 
   async function handleComparar() {
-    const resultado = await comparador.calcular();
-    if (resultado) {
-      navigation.navigate('Resultado', { resultado });
+    const resultadoConSugerencia = await comparador.calcular();
+    if (resultadoConSugerencia) {
+      navigation.navigate('Resultado', resultadoConSugerencia);
+    }
+  }
+
+  // Si el origen ya está lleno, el acceso rápido llena el destino; si no, llena el origen.
+  function handleFavoritoPress(favorito: FavoriteAddress) {
+    if (!favorito.placeId) return;
+    const address = { descripcion: favorito.direccion, placeId: favorito.placeId, lat: favorito.lat, lng: favorito.lng };
+    if (!comparador.origen) {
+      comparador.setOrigen(address);
+    } else if (!comparador.destino) {
+      comparador.setDestino(address);
     }
   }
 
@@ -50,6 +64,15 @@ export default function CapturarTrayectoScreen() {
           <View style={styles.seccion}>
             {comparador.modoCaptura === 'direccion' ? (
               <>
+                {favoriteAddresses.length > 0 ? (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.favoritos} contentContainerStyle={styles.favoritosContenido}>
+                    {favoriteAddresses.map((favorito) => (
+                      <TouchableOpacity key={favorito.id} style={styles.chip} onPress={() => handleFavoritoPress(favorito)}>
+                        <Text style={styles.chipTexto}>{favorito.etiqueta}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                ) : null}
                 <AddressAutocompleteInput
                   label="Origen"
                   placeholder="¿Desde dónde sales?"
@@ -133,6 +156,25 @@ const styles = StyleSheet.create({
   },
   seccion: {
     marginTop: spacing.lg,
+  },
+  favoritos: {
+    marginBottom: spacing.md,
+  },
+  favoritosContenido: {
+    gap: spacing.sm,
+  },
+  chip: {
+    backgroundColor: colors.backgroundElevated,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  chipTexto: {
+    color: colors.textPrimary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium as any,
   },
   campo: {
     marginBottom: spacing.md,
