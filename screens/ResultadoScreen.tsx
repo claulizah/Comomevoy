@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ViewShot, { type ViewShotRef } from 'react-native-view-shot';
 import OpcionTransporteCard from '../components/OpcionTransporteCard';
+import ResultadoShareCard from '../components/ResultadoShareCard';
 import { colors, radii, spacing, typography } from '../constants/theme';
 import { formatearRutaDescripcion, guardarComoRutaFrecuente } from '../services/frequentRouteService';
+import { compartirImagenLocal } from '../services/shareService';
 import type { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Resultado'>;
@@ -14,6 +17,8 @@ export default function ResultadoScreen({ route }: Props) {
   const disponibles = resultado.opciones.filter((o) => o.disponible);
   const noDisponibles = resultado.opciones.filter((o) => !o.disponible);
   const [rutaGuardada, setRutaGuardada] = useState(false);
+  const [compartiendo, setCompartiendo] = useState(false);
+  const viewShotRef = useRef<ViewShotRef>(null);
 
   async function handleGuardarRutaFrecuente() {
     if (!sugerenciaRutaFrecuente) return;
@@ -21,14 +26,33 @@ export default function ResultadoScreen({ route }: Props) {
     setRutaGuardada(true);
   }
 
+  async function handleCompartir() {
+    if (!viewShotRef.current) return;
+    setCompartiendo(true);
+    try {
+      const uri = await viewShotRef.current.capture();
+      await compartirImagenLocal(uri, 'Compartir comparación');
+    } catch {
+      Alert.alert('No se pudo compartir', 'Ocurrió un problema al generar la imagen.');
+    } finally {
+      setCompartiendo(false);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        {resultado.mensajeDestacado ? (
-          <View style={styles.banner}>
-            <Text style={styles.bannerTexto}>{resultado.mensajeDestacado}</Text>
-          </View>
-        ) : null}
+        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 0.9 }}>
+          <ResultadoShareCard resultado={resultado} />
+        </ViewShot>
+
+        <TouchableOpacity style={[styles.botonCompartir, compartiendo && styles.botonDeshabilitado]} onPress={handleCompartir} disabled={compartiendo}>
+          {compartiendo ? (
+            <ActivityIndicator color={colors.primary} />
+          ) : (
+            <Text style={styles.botonCompartirTexto}>Compartir resultado</Text>
+          )}
+        </TouchableOpacity>
 
         {sugerenciaRutaFrecuente && !rutaGuardada ? (
           <View style={styles.bannerRutaFrecuente}>
@@ -68,15 +92,22 @@ const styles = StyleSheet.create({
   scroll: {
     padding: spacing.lg,
   },
-  banner: {
-    backgroundColor: colors.secondary,
-    borderRadius: radii.lg,
-    padding: spacing.md,
+  botonCompartir: {
+    backgroundColor: colors.backgroundElevated,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radii.md,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    marginTop: spacing.sm,
     marginBottom: spacing.lg,
   },
-  bannerTexto: {
-    color: colors.secondaryContrastText,
-    fontSize: typography.fontSize.md,
+  botonDeshabilitado: {
+    opacity: 0.6,
+  },
+  botonCompartirTexto: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.semibold as any,
   },
   bannerRutaFrecuente: {

@@ -73,7 +73,16 @@ export interface CitySettings {
   tarifaBlaBlaCar: number;
 }
 
-/** Se respalda con cuenta. */
+/**
+ * Se respalda con cuenta.
+ *
+ * Se guarda un solo registro "actual" (como VehicleProfile/CitySettings,
+ * no una lista histórica por mes) — `monto` es el presupuesto mensual
+ * recurrente que la usuaria define, y `mes` solo registra cuándo se editó
+ * por última vez (YYYY-MM). Simplificación documentada: la spec no dice
+ * si el monto se vuelve a capturar cada mes o es recurrente; aquí se
+ * asume recurrente hasta que la usuaria lo cambie.
+ */
 export interface MonthlyBudget {
   monto: number;
   mes: string;
