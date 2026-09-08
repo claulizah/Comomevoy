@@ -96,8 +96,6 @@ export interface RatesConfigUmbrales {
 export interface RatesConfig {
   moneda: string;
   actualizadoEn: string;
-  /** Referencia para amortizar seguro + mantenimiento mensual a costo por km. */
-  kmMensualesReferencia: number;
   auto: RatesConfigAuto;
   uberDidi: RatesConfigUberDidi;
   transportePublico: RatesConfigTransportePublico;

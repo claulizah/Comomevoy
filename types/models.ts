@@ -14,6 +14,14 @@ export interface VehicleProfile {
   seguroMensual: number;
   mantenimientoMensual: number;
   depreciacionPorKm: number;
+  /**
+   * Kilometraje mensual de referencia usado para amortizar seguro +
+   * mantenimiento a costo por km (ver services/comparadorService.ts).
+   * No es un campo de la especificación técnica — es el supuesto de
+   * amortización documentado ahí, movido aquí para que sea editable
+   * desde PerfilAuto en vez de vivir fijo en el código.
+   */
+  kmMensualesReferencia: number;
 }
 
 /** Siempre local. Mismos campos que VehicleProfile. */

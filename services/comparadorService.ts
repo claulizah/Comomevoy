@@ -68,7 +68,7 @@ function calcularAuto(distanciaKm: number, idaYVuelta: boolean, numPasajeros: nu
   const vueltas = MULTIPLICADOR_VUELTA(idaYVuelta);
   const distanciaTotal = distanciaKm * vueltas;
   const costoCombustible = (distanciaTotal / r.auto.rendimientoKmPorLitro) * r.auto.precioGasolinaPorLitro;
-  const costoFijo = costoFijoPorKm(r.auto.seguroMensual, r.auto.mantenimientoMensual, r.auto.depreciacionPorKm, r.kmMensualesReferencia);
+  const costoFijo = costoFijoPorKm(r.auto.seguroMensual, r.auto.mantenimientoMensual, r.auto.depreciacionPorKm, r.auto.kmMensualesReferencia);
   const costoTotal = costoCombustible + distanciaTotal * costoFijo;
   const velocidad = velocidadAuto(distanciaKm, r.auto.umbralUrbanoKm, r.auto.velocidadUrbanaKmH, r.auto.velocidadCarreteraKmH);
   const tiempoEstimadoMin = (distanciaTotal / velocidad) * 60;
@@ -216,7 +216,7 @@ function calcularMoto(distanciaKm: number, idaYVuelta: boolean, numPasajeros: nu
   const vueltas = MULTIPLICADOR_VUELTA(idaYVuelta);
   const distanciaTotal = distanciaKm * vueltas;
   const costoCombustible = (distanciaTotal / r.moto.rendimientoKmPorLitro) * r.moto.precioGasolinaPorLitro;
-  const costoFijo = costoFijoPorKm(r.moto.seguroMensual, r.moto.mantenimientoMensual, r.moto.depreciacionPorKm, r.kmMensualesReferencia);
+  const costoFijo = costoFijoPorKm(r.moto.seguroMensual, r.moto.mantenimientoMensual, r.moto.depreciacionPorKm, r.moto.kmMensualesReferencia);
   const costoTotal = costoCombustible + distanciaTotal * costoFijo;
   const velocidad = velocidadAuto(distanciaKm, r.moto.umbralUrbanoKm, r.moto.velocidadUrbanaKmH, r.moto.velocidadCarreteraKmH);
   const tiempoEstimadoMin = (distanciaTotal / velocidad) * 60;
